@@ -14,8 +14,9 @@ class Main {
         System.out.print("\n" +
                 "1. Set field\n" +
                 "2. Clear field\n" +
-                "3. Exit\n\n" +
-                "Select an action [1-3]: ");
+                "3. Solve\n" +
+                "4. Exit\n\n" +
+                "Select an action [1-4]: ");
     }
 
     private static int requestInt(String msg, int min, int max) {
@@ -66,7 +67,15 @@ class Main {
                    game.clearField(x,y);
                    System.out.println(game);  
                    break;
-                case 3: 
+                case 3:
+                   if(!game.solve()) {
+                       System.out.println("No solution found!");
+                   } else {
+                       System.out.println("Solution found:");
+                       System.out.println(game);
+                   }
+                   break;
+                case 4: 
                    exit = true;
                    break;
                 default: 

@@ -11,22 +11,35 @@ import java.io.IOException;
 
 class Sudoku {
 
+    private class Field {
+        
+        public int value = 0;
+        /** indicates whether this value was set from the start of the game */
+        public boolean initial = false;
+    }
+
+
     public static final int GRID_DIM = 9;
     public static final int SUBGRID_DIM = GRID_DIM / 3;
 
     /** first dimension for columns second for rows 
      * only ints from 0 - 9 are allowed where 0 means empty*/
-    private final int[][] grid;
+    private final Field[][] grid;
 
     public Sudoku() {
-        grid = new int[GRID_DIM][GRID_DIM];
+        grid = new Field[GRID_DIM][GRID_DIM];
+        for(int x = 0; x < GRID_DIM; x++) {
+            for(int y = 0; y < GRID_DIM; y++) {
+                grid[y][x] = new Field();
+            }
+        }
     }
 
     public int getField(int x, int y) {
         if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
             throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
 
-        return grid[y][x];
+        return grid[y][x].value;
     }
 
     /** 
@@ -42,16 +55,28 @@ class Sudoku {
             throw new IllegalArgumentException("Invalid field value: " + value );
 
         if(isValid(x,y,value)) {
-            grid[y][x] = value;
+            grid[y][x].value = value;
             return true;
         }
         return false;
     }
 
+    private boolean isSet(int x, int y) {
+        if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
+            throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
+        return grid[y][x].value != 0; 
+    }
+
+    private boolean isInitial(int x, int y) {
+        if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
+            throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
+        return grid[y][x].initial; 
+    }
+
     public void clearField(int x, int y) {
         if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
             throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
-        grid[y][x] = 0; 
+        grid[y][x].value = 0; 
     }
 
     public boolean isValid(int x, int y, int value) {
@@ -127,6 +152,8 @@ class Sudoku {
                     if(!setField(x,y,value))
                        throw new RuntimeException("Given Sudoku file has invalid "
                                + "playing field at: " + x + "x" + y);
+                    else
+                        grid[y][x].initial = true;
                 }
             }
         }
@@ -136,9 +163,83 @@ class Sudoku {
     @Override
     public String toString() {
         StringBuilder bld = new StringBuilder();
-        for (int y = 0; y < GRID_DIM; y++)
-            bld.append(Arrays.toString(grid[y])).append("\n");
+        for (int y = 0; y < GRID_DIM; y++) {
+            for(int x = 0; x < GRID_DIM; x++) {
+                bld.append(grid[y][x].value);
+                if(x % SUBGRID_DIM == 2) bld.append(" ");
+                bld.append(" ");
+            }
+
+            if(y % SUBGRID_DIM == 2) bld.append("\n");
+            bld.append("\n");
+        }
 
         return bld.toString();
     }
+
+
+    /** solve given sudoku using backtracking 
+     * return true if a solution was found, false otherwise*/
+    public boolean solve() {
+       int x = 0;
+       int y = 0;
+       int steps = 0;
+
+       boolean goBack = false;
+       // while able to go back or forth through the grid
+       while(canMove(x,y,goBack)) {
+           steps++;
+           if(!isInitial(x,y)) {
+
+               goBack = false; // go forward
+               if(!tryIncrease(x,y)) {
+                   clearField(x,y);
+                   goBack = true;
+               }
+
+           } 
+           
+           // move through grid
+           if(goBack) {
+               x--;
+               if(x < 0) {
+                   x = GRID_DIM - 1;
+                   y--;
+               }
+           } else {
+              x++;
+              if(x >= GRID_DIM) {
+                  x = 0;
+                  y++;
+              }
+           }
+      }
+
+      System.out.println("Solver steps: " + steps);
+      if (x == GRID_DIM - 1 && y == -1) return false;
+      else if(x == 0 && y == GRID_DIM) return true;
+      else {
+          throw new RuntimeException("Unexpected algorithm outcome: " + x + "x" + y);
+      }
+    }
+
+    private boolean canMove(int x, int y, boolean goBack) {
+        if(goBack) {
+            return !(x == GRID_DIM - 1 && y == -1);
+        } else {
+            return !(x == 0 && y == GRID_DIM);
+        }
+    }
+
+    private boolean tryIncrease(int x, int y) {
+        if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
+            throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
+        int val = getField(x,y);
+        while(true) {
+            val += 1;
+            if(val > 9) return false;
+            if(setField(x,y,val)) return true;
+        } 
+    }
+
 }

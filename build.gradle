@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'sudoku.Main'
+
+jar {
+	baseName = 'sudoku'
+	version = '1.0.0'
+	manifest {
+		attributes("Implementation-Title": baseName,
+			   "Implementation-Version": version,
+			   "Main-Class": mainClassName)
+	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.1'
+}

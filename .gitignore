@@ -1,1 +1,25 @@
-*.class
+# Ignore eclipse project settings #
+###################################
+.settings/
+.classpath
+.project
+
+# Ignore generated folders #
+############################
+build-eclipse
+
+# gnu global files #
+####################
+*.orig
+*~
+\#*#
+
+### Gradle ###
+.gradle
+build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+## Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar

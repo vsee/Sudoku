@@ -37,6 +37,22 @@ class Sudoku {
         }
     }
 
+    /**
+     * Create a Sudoku by copying the given one.
+     */
+    public Sudoku(Sudoku cpy) {
+        if(cpy == null) throw new IllegalArgumentException("Given sudoku must not be null.");
+        grid = new Field[GRID_DIM][GRID_DIM];
+        for(int x = 0; x < GRID_DIM; x++) {
+            for(int y = 0; y < GRID_DIM; y++) {
+                grid[y][x] = new Field();
+                grid[y][x].value = cpy.grid[y][x].value;
+                grid[y][x].initial = cpy.grid[y][x].initial;
+            }
+        }
+
+    }
+
     public int getField(int x, int y) {
         if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
             throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
@@ -180,16 +196,19 @@ class Sudoku {
     }
 
 
-    /** solve given sudoku using backtracking 
-     * return true if a solution was found, false otherwise*/
-    public boolean solve() {
+    /** solve given sudoku using backtracking
+     * @param allSolutions specifies if a single solution or all solutions should be found 
+     * @return the number of solutions the algorithm could find
+     **/
+    public int solve(boolean allSolutions) {
        int x = 0;
        int y = 0;
        int steps = 0;
+       int solutions = 0;
 
        boolean goBack = false;
-       // while able to go back or forth through the grid
-       while(canMove(x,y,goBack)) {
+       // while not iterated through all possible combinations yet
+       while(!(x == GRID_DIM - 1 && y == -1)) {
            steps++;
            if(!isInitial(x,y)) {
 
@@ -215,14 +234,21 @@ class Sudoku {
                   y++;
               }
            }
-      }
 
-      System.out.println("Solver steps: " + steps);
-      if (x == GRID_DIM - 1 && y == -1) return false;
-      else if(x == 0 && y == GRID_DIM) return true;
-      else {
-          throw new RuntimeException("Unexpected algorithm outcome: " + x + "x" + y);
+           // if we found a valid solution, set
+           // the position back to the last Sudoku field            
+           if (x == 0 && y == GRID_DIM) {
+               System.out.println("Solution found:\n" + this);
+               solutions++;
+               if(!allSolutions && solutions == 1) break;
+               goBack = true;
+               x = GRID_DIM - 1;
+               y = GRID_DIM - 1;
+           } 
       }
+      System.out.println("Solver steps: " + steps);
+
+      return solutions;
     }
 
     private boolean canMove(int x, int y, boolean goBack) {

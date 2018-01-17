@@ -16,9 +16,11 @@ class Main {
         System.out.print("\n" +
                 "1. Set field\n" +
                 "2. Clear field\n" +
-                "3. Solve\n" +
-                "4. Exit\n\n" +
-                "Select an action [1-4]: ");
+                "3. Find single solution\n" +
+                "4. Find all solutions\n" +
+                "5. Print game\n" +
+                "6. Exit\n\n" +
+                "Select an action [1-6]: ");
     }
 
     private static int requestInt(String msg, int min, int max) {
@@ -51,7 +53,8 @@ class Main {
         while(!exit) {
             printMenu();
             int action = parseInput();
-            int x, y, val;
+            int x, y, val, sol;
+            Sudoku gameToSolve;
 
             switch(action) {
                 case 1: 
@@ -70,14 +73,21 @@ class Main {
                    System.out.println(game);  
                    break;
                 case 3:
-                   if(!game.solve()) {
-                       System.out.println("No solution found!");
-                   } else {
-                       System.out.println("Solution found:");
-                       System.out.println(game);
-                   }
+                   gameToSolve = new Sudoku(game);
+                   sol = gameToSolve.solve(false);
+                   if(sol == 0) System.out.println("No solution found!");
+                   else System.out.println(sol + " solution(s) found!");
                    break;
-                case 4: 
+                case 4:
+                   gameToSolve = new Sudoku(game);
+                   sol = gameToSolve.solve(true);
+                   if(sol == 0) System.out.println("No solution found!");
+                   else System.out.println(sol + " solution(s) found!");
+                   break;
+                case 5:
+                   System.out.println(game);
+                   break;
+                case 6: 
                    exit = true;
                    break;
                 default: 

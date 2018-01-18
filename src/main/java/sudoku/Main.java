@@ -2,8 +2,11 @@ package sudoku;
 
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.DirectoryStream;
 import java.util.Scanner; 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.InputMismatchException;
@@ -51,6 +54,8 @@ class Main {
         boolean exit = false;
         System.out.println(game);
 
+        in = new Scanner(System.in);
+
         while(!exit) {
             printMenu();
             int action = parseInput();
@@ -75,13 +80,13 @@ class Main {
                    break;
                 case 3:
                    gameToSolve = new Sudoku(game);
-                   sol = gameToSolve.solve(false);
+                   sol = gameToSolve.solve(false, true);
                    if(sol == 0) System.out.println("No solution found!");
                    else System.out.println(sol + " solution(s) found!");
                    break;
                 case 4:
                    gameToSolve = new Sudoku(game);
-                   sol = gameToSolve.solve(true);
+                   sol = gameToSolve.solve(true, true);
                    if(sol == 0) System.out.println("No solution found!");
                    else System.out.println(sol + " solution(s) found!");
                    break;
@@ -109,7 +114,7 @@ class Main {
         // free fields need to be calculated from game
         // since the solver would change it
         int freeFields = game.countFreeFields();
-        int sol = gameToSolve.solve(true);
+        int sol = gameToSolve.solve(true, false);
         return calculateRank(sol, freeFields);
 
     }
@@ -123,21 +128,52 @@ class Main {
         return solutions + (1 - (freeFields * (1f / 81)));
     }
 
-    public static void main(String[] args) {
-        Sudoku game = new Sudoku();
-        if (args.length < 1) {
-            System.out.println("Starting with empty Sudoku");
-        } else {
-            Path gameFile = Paths.get(args[0]);
-            System.out.println("Starting with game file: " + gameFile);
-            game.parseFromFile(gameFile);
+    private static void rankGames(Path gameDir) {
+        float highestRank = Float.MAX_VALUE;
+        Path highestRankPath = null;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(gameDir, "*.sd")) {
+            for (Path entry : stream) {
+                if (Files.isRegularFile(entry)) {
+                    Sudoku game = new Sudoku();
+                    game.parseFromFile(entry);
+                    float rank = rankSudoku(game);
+                    System.out.println(rank + " " + entry);
+
+                    if(rank < highestRank) {
+                        highestRank = rank;
+                        highestRankPath = entry;
+                    } 
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error reading game directory: " + gameDir + "\n " + e);
         }
 
-        in = new Scanner(System.in);
+        if(highestRankPath != null)
+            System.out.println("Highest ranking Sudoku: " + highestRank + " : " + highestRankPath);
+    }
 
-        gameLoop(game);
+    public static void main(String[] args) {
+        Sudoku game = new Sudoku();
+        Path gamePath = null;
+        if (args.length >= 1)
+            gamePath = Paths.get(args[0]);
+
+        if (gamePath == null) {
+            System.out.println("Starting with empty Sudoku");
+            gameLoop(game);
+        } else {
+            if (Files.isDirectory(gamePath)) {
+                System.out.println("Ranking game files in: " + gamePath);
+                rankGames(gamePath); 
+            } else {
+                System.out.println("Starting with game file: " + gamePath);
+                game.parseFromFile(gamePath);
+                gameLoop(game);
+            }
+        }
+
         System.out.println("Bye Bye");
-
    }
 
 }

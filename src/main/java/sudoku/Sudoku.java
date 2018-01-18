@@ -208,9 +208,10 @@ class Sudoku {
 
     /** solve given sudoku using backtracking
      * @param allSolutions specifies if a single solution or all solutions should be found 
+     * @param verbose if true, all solutions will be printed
      * @return the number of solutions the algorithm could find
      **/
-    public int solve(boolean allSolutions) {
+    public int solve(boolean allSolutions, boolean verbose) {
        int x = 0;
        int y = 0;
        int steps = 0;
@@ -248,15 +249,20 @@ class Sudoku {
            // if we found a valid solution, set
            // the position back to the last Sudoku field            
            if (x == 0 && y == GRID_DIM) {
-               System.out.println("Solution found:\n" + this);
+               if (verbose)
+                  System.out.println("Solution found:\n" + this);
+               
                solutions++;
                if(!allSolutions && solutions == 1) break;
+               
                goBack = true;
                x = GRID_DIM - 1;
                y = GRID_DIM - 1;
            } 
       }
-      System.out.println("Solver steps: " + steps);
+
+      if (verbose)
+         System.out.println("Solver steps: " + steps);
 
       return solutions;
     }

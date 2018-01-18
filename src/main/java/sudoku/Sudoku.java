@@ -60,6 +60,16 @@ class Sudoku {
         return grid[y][x].value;
     }
 
+    public int countFreeFields() {
+        int free = 0;
+        for(int x = 0; x < GRID_DIM; x++) {
+            for(int y = 0; y < GRID_DIM; y++) {
+                if(grid[y][x].value == 0) free++;
+            }
+        }
+        return free;
+    }
+
     /** 
      * Sets the grid at the given coordinate to the given value.
      * If the value is not allowed according to Sudoku rules, 

@@ -18,9 +18,10 @@ class Main {
                 "2. Clear field\n" +
                 "3. Find single solution\n" +
                 "4. Find all solutions\n" +
-                "5. Print game\n" +
-                "6. Exit\n\n" +
-                "Select an action [1-6]: ");
+                "5. Rank Sudoku\n" +
+                "6. Print game\n" +
+                "7. Exit\n\n" +
+                "Select an action [1-7]: ");
     }
 
     private static int requestInt(String msg, int min, int max) {
@@ -85,9 +86,12 @@ class Main {
                    else System.out.println(sol + " solution(s) found!");
                    break;
                 case 5:
+                   System.out.println("Rank: " + rankSudoku(game));
+                   break;                   
+                case 6:
                    System.out.println(game);
                    break;
-                case 6: 
+                case 7: 
                    exit = true;
                    break;
                 default: 
@@ -96,6 +100,27 @@ class Main {
             }
         }
  
+    }
+
+    private static float rankSudoku(Sudoku game) {
+        if (game == null) throw new IllegalArgumentException("Given game must not be null");
+        Sudoku gameToSolve = new Sudoku(game);
+        
+        // free fields need to be calculated from game
+        // since the solver would change it
+        int freeFields = game.countFreeFields();
+        int sol = gameToSolve.solve(true);
+        return calculateRank(sol, freeFields);
+
+    }
+
+    private static float calculateRank(int solutions, int freeFields) {
+        if (solutions < 0 || freeFields < 0) 
+            throw new IllegalArgumentException("Given parameters must be >= 0");
+
+        if (solutions == 0) return Float.MAX_VALUE;
+
+        return solutions + (1 - (freeFields * (1f / 81)));
     }
 
     public static void main(String[] args) {

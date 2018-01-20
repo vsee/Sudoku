@@ -1,0 +1,6 @@
+package sudoku;
+
+class Generator {
+
+    
+}

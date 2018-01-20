@@ -89,7 +89,7 @@ class Sudoku {
         return false;
     }
 
-    private boolean isSet(int x, int y) {
+    public boolean isSet(int x, int y) {
         if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
             throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
         return grid[y][x].value != 0; 
@@ -98,13 +98,22 @@ class Sudoku {
     private boolean isInitial(int x, int y) {
         if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
             throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
-        return grid[y][x].initial; 
+        return isSet(x,y) && grid[y][x].initial; 
+    }
+
+    public void makeAllInitial() {
+         for(int x = 0; x < GRID_DIM; x++) {
+            for(int y = 0; y < GRID_DIM; y++) {
+                if (isSet(x,y)) grid[y][x].initial = true;
+            }
+        }
     }
 
     public void clearField(int x, int y) {
         if(x < 0 || x >= GRID_DIM || y < 0 || y >= GRID_DIM)
             throw new IllegalArgumentException("Invalid field coordinates: " + x + "x" + y );
-        grid[y][x].value = 0; 
+        grid[y][x].value = 0;
+        grid[y][x].initial = false; 
     }
 
     public boolean isValid(int x, int y, int value) {

@@ -6,6 +6,8 @@ import java.nio.file.Files;
 
 class Main {
 
+    //TODO argument error checking in all methods
+
     private enum Mode { GENERATE, RANK, GAME; }
 
     private static void playGame(Sudoku game, Path gamePath) {
@@ -34,7 +36,13 @@ class Main {
     }
 
     private static void generateGames(Sudoku game, Path gamePath) {
-        System.err.println("NOT YET IMPLEMENTED");
+        if (gamePath == null || Files.isDirectory(gamePath))
+            throw new IllegalArgumentException("Please specify a game file for the generator.");
+
+        System.out.println("Generating based on: " + gamePath);        
+        game.parseFromFile(gamePath);
+        Sudoku genGame = Generator.run(game);
+        System.out.println("Game generation complete:\n" + genGame);
     }
 
     /**

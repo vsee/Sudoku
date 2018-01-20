@@ -22,11 +22,11 @@ $ ./gradlew build
 to run:
 
 ```
-$ java -jar build/libs/sudoku-<version>.jar GAME|GENERATE|RANK [<path_to_gamefile> | <path_to_dir_with_game_files]
+$ java -jar build/libs/sudoku-<version>.jar GAME|GENERATE|RANK [<path_to_gamefile> | <path_to_dir_with_game_files] [generator steps]
 ```
 
 * select one of three execution modes GAME, GENERATE or RANK
 * Specify a game file or a directory containing sudoku games
 * GAME provides an interactiv console interface to play a sudoku game
 * RANK allowes you to specify a directory with games, ranks all games in that directory and returns the one with the highest ranking
-* GENERATE generates a random Sudoku game based on a given game file
+* GENERATE generates a random Sudoku game based on a given game file and an optional step specification

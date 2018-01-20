@@ -35,20 +35,23 @@ class Main {
         }
     }
 
-    private static void generateGames(Sudoku game, Path gamePath) {
+    private static void generateGames(Sudoku game, Path gamePath, int steps) {
         if (gamePath == null || Files.isDirectory(gamePath))
             throw new IllegalArgumentException("Please specify a game file for the generator.");
 
         System.out.println("Generating based on: " + gamePath);        
         game.parseFromFile(gamePath);
-        Sudoku genGame = Generator.run(game);
-        System.out.println("Game generation complete:\n" + genGame);
+        Sudoku genGame = Generator.run(game, steps);
+        System.out.println("Game generation complete after " + steps + " steps:\n" + genGame);
+        System.out.println("Rank: " + Ranker.rankSudoku(genGame, true)); 
+
     }
 
     /**
      * args:
      *   0. GENERATE, RANK or GAME
      *   1. optional path to sudoku file or directory with sudoku files
+     *   2. optional number of steps for generator
      */
     public static void main(String[] args) {
         Sudoku game = new Sudoku();
@@ -68,7 +71,9 @@ class Main {
                 playGame(game, gamePath);
                 break;
             case GENERATE:
-                generateGames(game, gamePath);
+                int steps = Generator.DEFAULT_STEPS;
+                if (args.length >= 3) steps = Integer.parseInt(args[2]);
+                generateGames(game, gamePath, steps);
                 break;
             case RANK:
                 rankGames(game, gamePath);
